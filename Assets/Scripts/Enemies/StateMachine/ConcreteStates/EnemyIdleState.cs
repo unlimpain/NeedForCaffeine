@@ -1,14 +1,12 @@
-namespace Enemies.StateMachine.ConcreteStates
+﻿namespace Enemies.StateMachine.ConcreteStates
 {
-    public class AttackingState : EnemyState
+    public class EnemyIdleState : EnemyState
     {
-        public AttackingState(Enemy enemy, EnemyStateMachine enemyStateMachine) : base(enemy, enemyStateMachine)
+        public EnemyIdleState(Enemy enemy, EnemyStateMachine enemyStateMachine) : base(enemy, enemyStateMachine)
         {
-        
         }
         public override void EnterState()
         {
-        
         }
 
         public override void ExitState()
@@ -17,7 +15,7 @@ namespace Enemies.StateMachine.ConcreteStates
 
         public override void PhysicsUpdate()
         {
-        
+            
         }
 
         public override void FrameUpdate()

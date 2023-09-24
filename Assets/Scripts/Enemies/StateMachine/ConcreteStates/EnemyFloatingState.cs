@@ -1,8 +1,8 @@
 namespace Enemies.StateMachine.ConcreteStates
 {
-    public class FloatingState : EnemyState
+    public class EnemyFloatingState : EnemyState
     {
-        public FloatingState(Enemy enemy, EnemyStateMachine enemyStateMachine) : base(enemy, enemyStateMachine)
+        public EnemyFloatingState(Enemy enemy, EnemyStateMachine enemyStateMachine) : base(enemy, enemyStateMachine)
         {
         
         }

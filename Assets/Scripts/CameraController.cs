@@ -12,10 +12,13 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float _yOffset;
     [SerializeField] private float _xBorder;
     [SerializeField] private float _yBorder;
+    [SerializeField] private float _lookDownDistance;
+    [SerializeField] private float _lookUpDistance;
     #endregion
 
     private void FixedUpdate()
     {
+
         if (Math.Abs(_target.position.x - transform.position.x+_xOffset) > _xBorder
             || Math.Abs(_target.position.y - transform.position.y+_yOffset) > _yBorder)
         {

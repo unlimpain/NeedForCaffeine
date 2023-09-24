@@ -1,14 +1,19 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using Enemies.StateMachine;
 using Enemies.StateMachine.ConcreteStates;
+using PlayerScripts;
 using UnityEngine;
 
 namespace Enemies
 {
     public class Enemy : MonoBehaviour, IDamagable, IMovable
     {
+        [field: SerializeField] public float MaxHealth { get; set; }
+        public float CurrentHealth { get; set; }
+        public Rigidbody2D Rigidbody2D { get; set; }
+        public SpriteRenderer Sprite { get; private set; }
+        public bool IsFacedRight { get; set; }
+        
         #region StateMachineVariables
 
         public EnemyStateMachine StateMachine;
@@ -16,19 +21,6 @@ namespace Enemies
         public EnemyState IdleState;
 
         #endregion
-        
-        
-        [field: SerializeField] public float MaxHealth { get; set; }
-        public float CurrentHealth { get; set; }
-        public Rigidbody2D Rigidbody2D { get; set; }
-        public SpriteRenderer Sprite { get; private set; }
-        public bool IsFacedRight { get; set; }
-
-
-        private void Awake()
-        {
-            
-        }
 
         protected void Start()
         {
@@ -38,7 +30,7 @@ namespace Enemies
             
             StateMachine = new EnemyStateMachine();
             RunningState = new EnemyRunningState(this, StateMachine);
-            IdleState = new IdleState(this, StateMachine);
+            IdleState = new EnemyIdleState(this, StateMachine);
             StateMachine.Initialize(IdleState);
         }
 
@@ -52,23 +44,37 @@ namespace Enemies
             StateMachine.CurrentEnemyState.FrameUpdate();
         }
 
-        public void TakeDamage(float damageAmount)
+        public virtual void TakeDamage(float damageAmount)
         {
             CurrentHealth -= damageAmount;
             if (CurrentHealth <= 0f)
             {
                 Die();
             }
+            
         }
 
         public virtual void Die()
         {
-            
+            Destroy(this.gameObject);
         }
 
         public virtual void Move()
         {
             
+        }
+
+        private void OnCollisionEnter2D(Collision2D other)
+        {
+            print("1211");
+            if (other.collider.CompareTag("PlayerHit"))
+                TakeDamage(Player.PlayerDamage);
+        }
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (other.CompareTag("PlayerHit"))
+                TakeDamage(Player.PlayerDamage);
         }
     }
 }

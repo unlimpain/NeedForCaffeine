@@ -6,6 +6,7 @@ namespace Enemies.StateMachine.ConcreteStates
         {
         
         }
+        
         public override void EnterState()
         {
         

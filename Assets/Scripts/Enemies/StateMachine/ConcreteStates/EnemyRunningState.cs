@@ -6,42 +6,46 @@ namespace Enemies.StateMachine.ConcreteStates
     {
         private Rigidbody2D _rigidbody2D;
         private Transform _lastFrameTransform;
+        private Transform _playerTransform;
+        private float _playerFindingDistance = 5f; // TODO: change this
         
-        public EnemyRunningState(Enemy enemy, EnemyStateMachine enemyStateMachine) : base(enemy, enemyStateMachine)
+        public EnemyRunningState(Enemy enemy, EnemyStateMachine enemyStateMachine, Transform playerTransform) : base(enemy, enemyStateMachine)
         {
-            _enemy = enemy;
-            _playerStateMachine = enemyStateMachine;
+            _playerTransform = playerTransform;
         }
         
         public override void EnterState()
         {
-            base.EnterState();
-            _rigidbody2D = _enemy.Rigidbody2D;
-            _lastFrameTransform = _enemy.transform;
+            _rigidbody2D = Enemy.Rigidbody2D;
+            _lastFrameTransform = Enemy.transform;
         }
 
         public override void ExitState()
         {
-            base.ExitState();
+            
         }
 
         public override void PhysicsUpdate()
         {
-            base.PhysicsUpdate();
-            // _enemy.Rigidbody2D.position += new Vector2(_enemy.runningSpeed, 0f);
-            _enemy.Move(); 
+            Enemy.Move(); 
         }
 
         public override void FrameUpdate()
         {
             base.FrameUpdate();
-            if (_enemy.transform.position.x<_lastFrameTransform.position.x)
-                _enemy.IsFacedRight = false;
-            else if (_enemy.transform.position.x > _lastFrameTransform.position.x)
-                _enemy.IsFacedRight = true;
-            _lastFrameTransform = _enemy.transform;
+            if (Enemy.transform.position.x<_lastFrameTransform.position.x)
+                Enemy.IsFacedRight = false;
+            else if (Enemy.transform.position.x > _lastFrameTransform.position.x)
+                Enemy.IsFacedRight = true;
+            _lastFrameTransform = Enemy.transform;
             
-            _enemy.Sprite.flipX = _enemy.IsFacedRight;
+            Enemy.Sprite.flipX = Enemy.IsFacedRight;
+            
+            
+            if (Vector2.Distance(_playerTransform.position, Enemy.transform.position) < _playerFindingDistance)
+            {
+                EnemyStateMachine.ChangeState(Enemy.AttackingState);
+            }
         }
     }
 }

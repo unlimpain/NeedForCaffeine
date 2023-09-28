@@ -8,20 +8,18 @@ namespace PlayerScripts.StateMachine.ConcreteStates
 {
     public class JumpingState : PlayerState
     {
-        private int _jumpDelayMilliseconds = 100;
         public JumpingState(Player player, PlayerStateMachine playerStateMachine) : base(player, playerStateMachine)
         {
         
         }
         public override void EnterState()
         {
-            _player.StateMachine.ChangeState(_player.FallingState);
+            _player.PlayerStateMachine.ChangeState(_player.FallingState);
         }
 
         public override void ExitState()
         {
             _player.Jump();
-            _player.IsGrounded = false;
         }
 
         public override void PhysicsUpdate()
@@ -33,11 +31,5 @@ namespace PlayerScripts.StateMachine.ConcreteStates
         {
             
         }
-
-        // private async Task JumpToFloatingState()
-        // {
-        //     await Task.Delay(_jumpDelayMilliseconds);
-        //     _player.StateMachine.ChangeState(_player.FallingState);
-        // }
     }
 }

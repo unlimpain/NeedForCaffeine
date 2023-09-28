@@ -2,13 +2,13 @@ namespace Enemies.StateMachine
 {
     public class EnemyState
     {
-        protected Enemy _enemy;
-        protected EnemyStateMachine _playerStateMachine;
+        protected Enemy Enemy;
+        protected EnemyStateMachine EnemyStateMachine;
 
-        public EnemyState(Enemy enemy, EnemyStateMachine enemyStateMachine)
+        protected EnemyState(Enemy enemy, EnemyStateMachine enemyStateMachine)
         {
-            _enemy = enemy;
-            _playerStateMachine = enemyStateMachine;
+            Enemy = enemy;
+            EnemyStateMachine = enemyStateMachine;
         }
         public virtual void EnterState(){}
         public virtual void ExitState(){}

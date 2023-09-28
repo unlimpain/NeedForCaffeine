@@ -28,10 +28,10 @@ namespace PlayerScripts.StateMachine.ConcreteStates
         public override void FrameUpdate()
         {
             if (Input.GetAxis("Horizontal") == 0f)
-                _player.StateMachine.ChangeState(_player.IdleState);
-            if (Input.GetButtonDown("Fire1"))
-                _player.StateMachine.ChangeState(_player.AttackingState);
-            if (Input.GetKey(KeyCode.Z))
+                _player.PlayerStateMachine.ChangeState(_player.IdleState);
+            if (Input.GetKeyDown(KeyCode.A))
+                _player.PlayerStateMachine.ChangeState(_player.AttackingState);
+            if (Input.GetKeyDown(KeyCode.Z))
                 _playerStateMachine.ChangeState(_player.JumpingState);
         }
     }

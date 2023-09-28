@@ -1,8 +1,8 @@
+using System;
 using System.Collections;
 using PlayerScripts.StateMachine;
 using PlayerScripts.StateMachine.ConcreteStates;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 namespace PlayerScripts
@@ -11,43 +11,59 @@ namespace PlayerScripts
     {
         [SerializeField] private float _speed;
         [SerializeField] private float _jumpSpeed;
-        public bool IsGrounded;
-        private Rigidbody2D _rigidbody2D;
+        [SerializeField] private float _addedGravity;
+        [SerializeField] private float _maxHealth;
+        [SerializeField] private float _unhittableTime;
+        [SerializeField] private float _damagedDistance;
+        
+        // TODO: groundCheck ^^
+        public bool IsGrounded { get; set; }
+        
+        public Rigidbody2D _rigidbody2D { get; private set; }
 
         #region AttackingVariables
+        
         [SerializeField] private Object _attackPrefab;
-        public static int PlayerDamage = 5;
-        public float PlayerAttackTime;
+        [SerializeField] private float _reloadTime;
+        [field: SerializeField] public float PlayerAttackTime { get; private set; }
+        public static int PlayerDamage { get; private set; }
         private Transform _attackColliderTransform;
+        private bool _isAttackAllowed = true;
+        
         #endregion
 
         #region StateMachineVariables
 
-        public PlayerStateMachine StateMachine;
-        public IdleState IdleState;
-        public RunningState RunningState;
-        public AttackingState AttackingState;
-        public FallingState FallingState;
-        public JumpingState JumpingState;
+        public PlayerStateMachine PlayerStateMachine { get; private set; }
+        public IdleState IdleState { get; private set; }
+        public RunningState RunningState { get; private set; }
+        public AttackingState AttackingState { get; private set; }
+        public FallingState FallingState { get; private set; }
+        public JumpingState JumpingState { get; private set; }
         
         #endregion
         
+        private float _currentHealth;
         private IEnumerator _jumpingCoroutine;
         private SpriteRenderer _sprite;
         private bool _isFacedRight = true;
+        private bool _isHittable = true;
         private void Awake()
         {
-            StateMachine = new PlayerStateMachine();
-            IdleState = new IdleState(this, StateMachine);
-            RunningState = new RunningState(this, StateMachine);
-            AttackingState = new AttackingState(this, StateMachine);
-            FallingState = new FallingState(this, StateMachine);
-            JumpingState = new JumpingState(this, StateMachine);
+            PlayerStateMachine = new PlayerStateMachine();
+            IdleState = new IdleState(this, PlayerStateMachine);
+            RunningState = new RunningState(this, PlayerStateMachine);
+            AttackingState = new AttackingState(this, PlayerStateMachine);
+            FallingState = new FallingState(this, PlayerStateMachine, _addedGravity);
+            JumpingState = new JumpingState(this, PlayerStateMachine);
+
+            _currentHealth = _maxHealth;
+            PlayerDamage = 5;
         }
 
         private void Start()
         {
-            StateMachine.Initialize(IdleState);
+            PlayerStateMachine.Initialize(FallingState);
             _attackColliderTransform = GetComponentInChildren<Transform>(); //HitCreator in Player should always be first
             _sprite = GetComponentInChildren<SpriteRenderer>();
             _rigidbody2D = GetComponent<Rigidbody2D>();
@@ -60,12 +76,12 @@ namespace PlayerScripts
 
         private void FixedUpdate()
         {   
-            StateMachine.CurrentEnemyState.PhysicsUpdate();
+            PlayerStateMachine.CurrentEnemyState.PhysicsUpdate();
         }
 
         private void Update()
         {
-            StateMachine.CurrentEnemyState.FrameUpdate();
+            PlayerStateMachine.CurrentEnemyState.FrameUpdate();
         }
 
         public void Run()
@@ -78,36 +94,68 @@ namespace PlayerScripts
 
         public void Jump()
         {
-            // Invoke(nameof(StopJump), 0.2f);
-            // _jumpingCoroutine = Jumping();
-            // StartCoroutine(_jumpingCoroutine);
             _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, _jumpSpeed);
         }
 
         public void Attack()
         {
-            var playerAttack = Instantiate(_attackPrefab, _attackColliderTransform, false);
-            Destroy(playerAttack, PlayerAttackTime);
-        }
-        
-        private IEnumerator Jumping()
-        {
-            while (!Input.GetKeyUp(KeyCode.Z))
+            if (_isAttackAllowed)
             {
-                _rigidbody2D.velocity += Vector2.up * 1f;
-                yield return new WaitForFixedUpdate();
+                var playerAttack = Instantiate(_attackPrefab, _attackColliderTransform, false);
+                Destroy(playerAttack, PlayerAttackTime);
+                _isAttackAllowed = false;
+                Invoke(nameof(ReloadAttack), _reloadTime);
             }
         }
-
-        private void StopJump()
+        
+        public void TakeDamage(float damageAmount)
         {
-            StopCoroutine(_jumpingCoroutine);
+            if (!_isHittable) return;
+            _isHittable = false;
+            _currentHealth -= damageAmount;
+            if (_currentHealth <= 0f)
+            {
+                Die();
+            }
+            
+            Invoke(nameof(AllowToHit), _unhittableTime);
         }
 
+        public void Die()
+        {
+            print("dead");
+        }
+
+        private void GetBackFromHit(bool jumpToLeft)
+        {
+            Vector2 jumpDir = jumpToLeft ? -transform.right + transform.up : transform.right + transform.up;
+            _rigidbody2D.AddForce(jumpDir * _damagedDistance, ForceMode2D.Impulse);
+            PlayerStateMachine.ChangeState(FallingState);
+        }
+
+        private void ReloadAttack()
+        {
+            _isAttackAllowed = true;
+        }
+
+        private void AllowToHit()
+        {
+            _isHittable = true;
+        }
+        
         private void OnCollisionEnter2D(Collision2D other)
         {
             IsGrounded = true;
+            if (other.gameObject.CompareTag("Enemy"))
+            {
+                bool jumpToLeft = other.collider.transform.position.x >= transform.position.x;
+                GetBackFromHit(jumpToLeft);
+            }
         }
-        
+
+        private void OnCollisionExit2D(Collision2D other)
+        {
+            PlayerStateMachine.ChangeState(FallingState);
+        }
     }
 }

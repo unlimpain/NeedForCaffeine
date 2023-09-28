@@ -32,7 +32,7 @@ namespace PlayerScripts.StateMachine.ConcreteStates
         private async Task AttackToIdleState()
         {
             await Task.Delay(TimeSpan.FromSeconds(_player.PlayerAttackTime));
-            _player.StateMachine.ChangeState(_player.FallingState);
+            _player.PlayerStateMachine.ChangeState(_player.FallingState);
         }
     }
 }

@@ -9,16 +9,22 @@ namespace Enemies
     public class Enemy : MonoBehaviour, IDamagable, IMovable
     {
         [field: SerializeField] public float MaxHealth { get; set; }
+        [SerializeField] protected float _attackDamage;
+        [SerializeField] protected float _collisionDamage;
         public float CurrentHealth { get; set; }
         public Rigidbody2D Rigidbody2D { get; set; }
-        public SpriteRenderer Sprite { get; private set; }
         public bool IsFacedRight { get; set; }
+        public SpriteRenderer Sprite { get; private set; }
+
+        
         
         #region StateMachineVariables
 
-        public EnemyStateMachine StateMachine;
-        public EnemyState RunningState;
-        public EnemyState IdleState;
+        public EnemyStateMachine StateMachine { get; private set; }
+        public EnemyState RunningState { get; private set; }
+        public EnemyState IdleState { get; private set; }
+        
+        public EnemyState AttackingState { get; private set; }
 
         #endregion
 
@@ -29,8 +35,9 @@ namespace Enemies
             Sprite = GetComponent<SpriteRenderer>();
             
             StateMachine = new EnemyStateMachine();
-            RunningState = new EnemyRunningState(this, StateMachine);
+            RunningState = new EnemyRunningState(this, StateMachine, FindObjectOfType<Player>().transform);
             IdleState = new EnemyIdleState(this, StateMachine);
+            AttackingState = new EnemyAttackingState(this, StateMachine, FindObjectOfType<Player>().transform);
             StateMachine.Initialize(IdleState);
         }
 
@@ -51,12 +58,11 @@ namespace Enemies
             {
                 Die();
             }
-            
         }
 
         public virtual void Die()
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
 
         public virtual void Move()
@@ -64,14 +70,19 @@ namespace Enemies
             
         }
 
-        private void OnCollisionEnter2D(Collision2D other)
+        public virtual void Attack()
+        {
+            
+        }
+        
+        protected virtual void OnCollisionEnter2D(Collision2D other)
         {
             print("1211");
-            if (other.collider.CompareTag("PlayerHit"))
-                TakeDamage(Player.PlayerDamage);
+            if (other.collider.CompareTag("Player"))
+                FindObjectOfType<Player>().TakeDamage(_collisionDamage);
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
+        protected virtual void OnTriggerEnter2D(Collider2D other)
         {
             if (other.CompareTag("PlayerHit"))
                 TakeDamage(Player.PlayerDamage);

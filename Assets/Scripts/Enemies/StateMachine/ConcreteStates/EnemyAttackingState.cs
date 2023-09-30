@@ -16,7 +16,7 @@ namespace Enemies.StateMachine.ConcreteStates
         public override void EnterState()
         {
             Enemy.Attack();
-            JumpToFloatingState();
+            AttackToRunningState();
         }
 
         public override void ExitState()
@@ -34,7 +34,7 @@ namespace Enemies.StateMachine.ConcreteStates
             
         }
         
-        private async Task JumpToFloatingState()
+        private async Task AttackToRunningState()
         {
             await Task.Delay(_reloadTimeInMilliseconds);
             Enemy.StateMachine.ChangeState(Enemy.RunningState);

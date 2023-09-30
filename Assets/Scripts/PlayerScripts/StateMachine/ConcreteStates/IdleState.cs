@@ -15,6 +15,7 @@ namespace PlayerScripts.StateMachine.ConcreteStates
 
         public override void ExitState()
         {
+            
         }
 
         public override void PhysicsUpdate()

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using Enemies.StateMachine.ConcreteStates;
-using PlayerScripts;
+﻿using PlayerScripts;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Utility;
 
 namespace Enemies.EnemyTypes
 {
@@ -14,6 +11,7 @@ namespace Enemies.EnemyTypes
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _bulletCreationTransform;
         [SerializeField] private float _bulletSpeed;
+        private Transform _playerTransform;
         private Vector3 _startingPos;
         private bool _isMovingRight;
         
@@ -22,6 +20,7 @@ namespace Enemies.EnemyTypes
             base.Start();
             StateMachine.ChangeState(RunningState);
             _startingPos = transform.position;
+            _playerTransform = FindObjectOfType<Player>().transform;
         }
         
         public override void Move()
@@ -37,46 +36,22 @@ namespace Enemies.EnemyTypes
                 _isMovingRight = true;
         }
 
-        // TODO: NOT WORKING FORMULA 
-        #region BulletLaunching
-            
         public override void Attack()
         {
             base.Attack();
-            Transform playerTransform = FindObjectOfType<Player>().transform;
-            var bullet = Instantiate(_bulletPrefab, _bulletCreationTransform);
+            
+            var bullet = Instantiate(_bulletPrefab, _bulletCreationTransform.position, Quaternion.identity);
             var bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
-            Launch(playerTransform, bulletRigidbody);
+            Launch(_playerTransform, bulletRigidbody);
+            
             Destroy(bullet, 3f);
         }
 
         private void Launch(Transform target, Rigidbody2D bulletRigidbody)
         {
-            float angle = GetAngle(transform.position, target.position, _bulletSpeed, Physics2D.gravity.y);
-            var forceToAdd = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * _bulletSpeed;
-            bulletRigidbody.AddForce(forceToAdd, ForceMode2D.Impulse);
+            bulletRigidbody.SetTrajectory(target.position, _bulletSpeed);
         }
-
-        private float GetAngle(Vector2 origin, Vector2 destination, float speed, float gravity)
-        {
-            float angle = 0.0f;
-            
-            float x = Mathf.Abs(destination.x - origin.x);
-            float y = Mathf.Abs(destination.y - origin.y);
-            float v = speed;
-            float g = gravity;
-
-            
-            float valueToBeSquareRooted = Mathf.Pow(v, 4) - g * (g * Mathf.Pow(x, 2) + 2 * y * Mathf.Pow(v, 2));
-            if (valueToBeSquareRooted >= 0)
-            {
-                angle = Mathf.Atan((Mathf.Pow(v, 2) + Mathf.Sqrt(valueToBeSquareRooted)) / g * x);
-            }
-            
-            return angle;
-        }
-
-        #endregion
+        
         
     }
 }

@@ -21,8 +21,6 @@ namespace PlayerScripts.StateMachine.ConcreteStates
         public override void PhysicsUpdate()
         {
             _player.Run();
-            
-            
         }
 
         public override void FrameUpdate()

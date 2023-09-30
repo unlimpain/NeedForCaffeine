@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using PlayerScripts.StateMachine;
 using PlayerScripts.StateMachine.ConcreteStates;
+using Unity.Mathematics;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -101,7 +102,7 @@ namespace PlayerScripts
         {
             if (_isAttackAllowed)
             {
-                var playerAttack = Instantiate(_attackPrefab, _attackColliderTransform, false);
+                var playerAttack = Instantiate(_attackPrefab, _attackColliderTransform.position, Quaternion.identity);
                 Destroy(playerAttack, PlayerAttackTime);
                 _isAttackAllowed = false;
                 Invoke(nameof(ReloadAttack), _reloadTime);
@@ -145,7 +146,11 @@ namespace PlayerScripts
         
         private void OnCollisionEnter2D(Collision2D other)
         {
-            IsGrounded = true;
+            if (other.gameObject.CompareTag("World"))
+            {
+                IsGrounded = true;
+            }
+            //TODO: hittedState
             if (other.gameObject.CompareTag("Enemy"))
             {
                 bool jumpToLeft = other.collider.transform.position.x >= transform.position.x;

@@ -7,7 +7,7 @@ namespace Enemies.StateMachine.ConcreteStates
         private Rigidbody2D _rigidbody2D;
         private Transform _lastFrameTransform;
         private Transform _playerTransform;
-        private float _playerFindingDistance = 5f; // TODO: change this
+        private float _playerFindingDistance = 7f; // TODO: change this
         
         public EnemyRunningState(Enemy enemy, EnemyStateMachine enemyStateMachine, Transform playerTransform) : base(enemy, enemyStateMachine)
         {

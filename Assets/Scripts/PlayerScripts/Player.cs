@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using PlayerScripts.StateMachine;
 using PlayerScripts.StateMachine.ConcreteStates;
-using Unity.Mathematics;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -41,7 +39,7 @@ namespace PlayerScripts
         public AttackingState AttackingState { get; private set; }
         public FallingState FallingState { get; private set; }
         public JumpingState JumpingState { get; private set; }
-        
+
         #endregion
         
         private float _currentHealth;
@@ -113,6 +111,7 @@ namespace PlayerScripts
         {
             if (!_isHittable) return;
             _isHittable = false;
+            
             _currentHealth -= damageAmount;
             if (_currentHealth <= 0f)
             {
@@ -131,7 +130,7 @@ namespace PlayerScripts
         {
             Vector2 jumpDir = jumpToLeft ? -transform.right + transform.up : transform.right + transform.up;
             _rigidbody2D.AddForce(jumpDir * _damagedDistance, ForceMode2D.Impulse);
-            PlayerStateMachine.ChangeState(FallingState);
+            PlayerStateMachine.ChangeState(FallingState); // TODO: remake
         }
 
         private void ReloadAttack()
@@ -150,7 +149,6 @@ namespace PlayerScripts
             {
                 IsGrounded = true;
             }
-            //TODO: hittedState
             if (other.gameObject.CompareTag("Enemy"))
             {
                 bool jumpToLeft = other.collider.transform.position.x >= transform.position.x;

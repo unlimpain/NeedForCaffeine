@@ -5,18 +5,20 @@ namespace Enemies.StateMachine.ConcreteStates
 {
     public class EnemyAttackingState : EnemyState
     {
-        private Transform _playerTransform;
-        private int _reloadTimeInMilliseconds = 1000;
-        private float _playerFindingDistance = 5f;
-        public EnemyAttackingState(Enemy enemy, EnemyStateMachine enemyStateMachine, Transform playerTransform) : base(enemy, enemyStateMachine)
+        protected Transform PlayerTransform;
+        protected int ReloadTimeInMilliseconds;
+
+        public EnemyAttackingState(Enemy enemy, EnemyStateMachine enemyStateMachine, Transform playerTransform, 
+            int reloadTimeInMilliseconds) : base(enemy, enemyStateMachine)
         {
-            _playerTransform = playerTransform;
+            PlayerTransform = playerTransform;
+            ReloadTimeInMilliseconds = reloadTimeInMilliseconds;
         }
         
         public override void EnterState()
         {
-            Enemy.Attack();
-            AttackToRunningState();
+            Enemy.Attack(PlayerTransform);
+            AttackToPreviousState();
         }
 
         public override void ExitState()
@@ -34,10 +36,10 @@ namespace Enemies.StateMachine.ConcreteStates
             
         }
         
-        private async Task AttackToRunningState()
+        private async Task AttackToPreviousState()
         {
-            await Task.Delay(_reloadTimeInMilliseconds);
-            Enemy.StateMachine.ChangeState(Enemy.RunningState);
+            await Task.Delay(ReloadTimeInMilliseconds);
+            Enemy.StateMachine.ReturnToPreviousState();
         }
     }
 }

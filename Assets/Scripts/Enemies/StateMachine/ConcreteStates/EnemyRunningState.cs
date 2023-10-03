@@ -4,11 +4,9 @@ namespace Enemies.StateMachine.ConcreteStates
 {
     public class EnemyRunningState : EnemyState
     {
-        private Rigidbody2D _rigidbody2D;
-        private Transform _lastFrameTransform;
-        private Transform _playerTransform;
-        private float _playerFindingDistance = 7f; // TODO: change this
-        
+        protected Transform _lastFrameTransform;
+        protected Transform _playerTransform;
+
         public EnemyRunningState(Enemy enemy, EnemyStateMachine enemyStateMachine, Transform playerTransform) : base(enemy, enemyStateMachine)
         {
             _playerTransform = playerTransform;
@@ -16,7 +14,6 @@ namespace Enemies.StateMachine.ConcreteStates
         
         public override void EnterState()
         {
-            _rigidbody2D = Enemy.Rigidbody2D;
             _lastFrameTransform = Enemy.transform;
         }
 
@@ -32,7 +29,6 @@ namespace Enemies.StateMachine.ConcreteStates
 
         public override void FrameUpdate()
         {
-            base.FrameUpdate();
             if (Enemy.transform.position.x<_lastFrameTransform.position.x)
                 Enemy.IsFacedRight = false;
             else if (Enemy.transform.position.x > _lastFrameTransform.position.x)
@@ -41,8 +37,9 @@ namespace Enemies.StateMachine.ConcreteStates
             
             Enemy.Sprite.flipX = Enemy.IsFacedRight;
             
+            //TODO: toIdleStateChange
             
-            if (Vector2.Distance(_playerTransform.position, Enemy.transform.position) < _playerFindingDistance)
+            if (Vector2.Distance(_playerTransform.position, Enemy.transform.position) < Enemy.PlayerFindingDistance)
             {
                 EnemyStateMachine.ChangeState(Enemy.AttackingState);
             }

@@ -1163,6 +1163,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1876267861224470609, guid: c93955efb77045342891531e8b9f4ce8, type: 3}
     - target: {fileID: 7687425263313187161, guid: 82f75109a71815a449d551f792de487f, type: 3}
+      propertyPath: _stayTimeInMilleseconds
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 7687425263313187161, guid: 82f75109a71815a449d551f792de487f, type: 3}
       propertyPath: _bulletCreationTransform
       value: 
       objectReference: {fileID: 976403288}

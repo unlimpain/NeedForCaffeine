@@ -1,31 +1,28 @@
-﻿using System;
-using Enemies.StateMachine;
+﻿using Enemies.StateMachine;
 using Enemies.StateMachine.ConcreteStates;
 using PlayerScripts;
 using UnityEngine;
+
 
 namespace Enemies
 {
     public class Enemy : MonoBehaviour, IDamagable, IMovable
     {
         [field: SerializeField] public float MaxHealth { get; set; }
-        [SerializeField] protected float _attackDamage;
-        [SerializeField] protected float _collisionDamage;
+        [SerializeField] protected float attackDamage; 
+        [SerializeField] protected float collisionDamage;
+        [SerializeField] protected int reloadTimeInMilliseconds;
         public float CurrentHealth { get; set; }
         public Rigidbody2D Rigidbody2D { get; set; }
         public bool IsFacedRight { get; set; }
         public SpriteRenderer Sprite { get; private set; }
-
-        
+        public float PlayerFindingDistance { get; protected set; }
         
         #region StateMachineVariables
-
-        public EnemyStateMachine StateMachine { get; private set; }
-        public EnemyState RunningState { get; private set; }
-        public EnemyState IdleState { get; private set; }
-        
-        public EnemyState AttackingState { get; private set; }
-
+        public EnemyStateMachine StateMachine { get; protected set; }
+        public EnemyState RunningState { get; protected set; }
+        public EnemyState IdleState { get; protected set; }
+        public EnemyState AttackingState { get; protected set; }
         #endregion
 
         protected void Start()
@@ -33,11 +30,12 @@ namespace Enemies
             Rigidbody2D = GetComponent<Rigidbody2D>();
             CurrentHealth = MaxHealth;
             Sprite = GetComponent<SpriteRenderer>();
+            Transform playerTransform = FindObjectOfType<Player>().transform;
             
             StateMachine = new EnemyStateMachine();
-            RunningState = new EnemyRunningState(this, StateMachine, FindObjectOfType<Player>().transform);
+            RunningState = new EnemyRunningState(this, StateMachine, playerTransform);
             IdleState = new EnemyIdleState(this, StateMachine);
-            AttackingState = new EnemyAttackingState(this, StateMachine, FindObjectOfType<Player>().transform);
+            AttackingState = new EnemyAttackingState(this, StateMachine, playerTransform, reloadTimeInMilliseconds);
             StateMachine.Initialize(IdleState);
         }
 
@@ -70,7 +68,7 @@ namespace Enemies
             
         }
 
-        public virtual void Attack()
+        public virtual void Attack(Transform targetTransform)
         {
             
         }
@@ -79,7 +77,7 @@ namespace Enemies
         {
             print("1211");
             if (other.collider.CompareTag("Player"))
-                FindObjectOfType<Player>().TakeDamage(_collisionDamage);
+                FindObjectOfType<Player>().TakeDamage(collisionDamage);
         }
 
         protected virtual void OnTriggerEnter2D(Collider2D other)

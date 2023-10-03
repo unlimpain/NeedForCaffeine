@@ -1,4 +1,4 @@
-﻿using PlayerScripts;
+﻿using Enemies.StateMachine.ConcreteStates;
 using UnityEngine;
 using Utility;
 
@@ -11,16 +11,18 @@ namespace Enemies.EnemyTypes
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _bulletCreationTransform;
         [SerializeField] private float _bulletSpeed;
-        private Transform _playerTransform;
+        [SerializeField] private int _stayTimeInMilleseconds;
+        public static float AttackDamage { get; private set; }
         private Vector3 _startingPos;
         private bool _isMovingRight;
         
         private new void Start()
         {
             base.Start();
+            IdleState = new WaterBottleIdleState(this, StateMachine, _stayTimeInMilleseconds);
             StateMachine.ChangeState(RunningState);
             _startingPos = transform.position;
-            _playerTransform = FindObjectOfType<Player>().transform;
+            AttackDamage = attackDamage;
         }
         
         public override void Move()
@@ -29,20 +31,20 @@ namespace Enemies.EnemyTypes
                 Rigidbody2D.position += new Vector2(_runningSpeed * Time.fixedDeltaTime, 0f);
             else
                 Rigidbody2D.position -= new Vector2(_runningSpeed * Time.fixedDeltaTime, 0f);
-
+            
             if (transform.position.x > _startingPos.x + _movementRange)
                 _isMovingRight = false;
             else if (transform.position.x < _startingPos.x - _movementRange)
                 _isMovingRight = true;
         }
 
-        public override void Attack()
+        public override void Attack(Transform targetTransform)
         {
-            base.Attack();
+            base.Attack(targetTransform);
             
             var bullet = Instantiate(_bulletPrefab, _bulletCreationTransform.position, Quaternion.identity);
             var bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
-            Launch(_playerTransform, bulletRigidbody);
+            Launch(targetTransform, bulletRigidbody);
             
             Destroy(bullet, 3f);
         }

@@ -2,16 +2,16 @@
 
 namespace Enemies.StateMachine.ConcreteStates
 {
-    public class WaterBottleIdleState : EnemyIdleState
+    public class PlatformBasedIdleState : EnemyIdleState
     {
         private int _stayTimeInMilliseconds;
-        public WaterBottleIdleState(Enemy enemy, EnemyStateMachine enemyStateMachine, int stayTimeInMilliseconds) : base(enemy, enemyStateMachine)
+        public PlatformBasedIdleState(Enemy enemy, EnemyStateMachine enemyStateMachine, int stayTimeInMilliseconds) : base(enemy, enemyStateMachine)
         {
             _stayTimeInMilliseconds = stayTimeInMilliseconds;
         }
         public override void EnterState()
         {
-            AttackToPreviousState();
+            IdleToRunningState();
         }
 
         public override void ExitState()
@@ -29,7 +29,7 @@ namespace Enemies.StateMachine.ConcreteStates
             
         }
         
-        private async Task AttackToPreviousState()
+        private async Task IdleToRunningState()
         {
             await Task.Delay(_stayTimeInMilliseconds);
             Enemy.StateMachine.ReturnToPreviousState();

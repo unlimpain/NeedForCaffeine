@@ -1,4 +1,5 @@
-﻿using Enemies.StateMachine;
+﻿using System;
+using Enemies.StateMachine;
 using Enemies.StateMachine.ConcreteStates;
 using PlayerScripts;
 using UnityEngine;
@@ -9,14 +10,16 @@ namespace Enemies
     public class Enemy : MonoBehaviour, IDamagable, IMovable
     {
         [field: SerializeField] public float MaxHealth { get; set; }
+        [field: SerializeField] public float PlayerFindingDistance { get; set; }
         [SerializeField] protected float attackDamage; 
         [SerializeField] protected float collisionDamage;
         [SerializeField] protected int reloadTimeInMilliseconds;
         public float CurrentHealth { get; set; }
+        public Action OnDirectionChange { get; set; }
         public Rigidbody2D Rigidbody2D { get; set; }
         public bool IsFacedRight { get; set; }
         public SpriteRenderer Sprite { get; private set; }
-        public float PlayerFindingDistance { get; protected set; }
+        
         
         #region StateMachineVariables
         public EnemyStateMachine StateMachine { get; protected set; }

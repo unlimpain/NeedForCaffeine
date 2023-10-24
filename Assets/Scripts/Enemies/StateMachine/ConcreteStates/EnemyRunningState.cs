@@ -15,6 +15,7 @@ namespace Enemies.StateMachine.ConcreteStates
         public override void EnterState()
         {
             _lastFrameTransform = Enemy.transform;
+            Enemy.OnDirectionChange += OnDirectionChanged;
         }
 
         public override void ExitState()
@@ -37,12 +38,18 @@ namespace Enemies.StateMachine.ConcreteStates
             
             Enemy.Sprite.flipX = Enemy.IsFacedRight;
             
-            //TODO: toIdleStateChange
+            
             
             if (Vector2.Distance(_playerTransform.position, Enemy.transform.position) < Enemy.PlayerFindingDistance)
             {
                 EnemyStateMachine.ChangeState(Enemy.AttackingState);
             }
+        }
+
+        private void OnDirectionChanged()
+        {
+            EnemyStateMachine.ChangeState(Enemy.IdleState);
+            Enemy.OnDirectionChange -= OnDirectionChanged;;
         }
     }
 }

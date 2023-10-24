@@ -17,6 +17,7 @@ namespace Enemies.StateMachine.ConcreteStates
         
         public override void EnterState()
         {
+            Debug.Log("ssss");
             Enemy.Attack(PlayerTransform);
             AttackToPreviousState();
         }

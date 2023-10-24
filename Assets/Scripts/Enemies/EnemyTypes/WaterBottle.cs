@@ -1,4 +1,5 @@
-﻿using Enemies.StateMachine.ConcreteStates;
+﻿using System;
+using Enemies.StateMachine.ConcreteStates;
 using UnityEngine;
 using Utility;
 
@@ -14,12 +15,12 @@ namespace Enemies.EnemyTypes
         [SerializeField] private int _stayTimeInMilleseconds;
         public static float AttackDamage { get; private set; }
         private Vector3 _startingPos;
-        private bool _isMovingRight;
+        
         
         private new void Start()
         {
             base.Start();
-            IdleState = new WaterBottleIdleState(this, StateMachine, _stayTimeInMilleseconds);
+            IdleState = new PlatformBasedIdleState(this, StateMachine, _stayTimeInMilleseconds);
             StateMachine.ChangeState(RunningState);
             _startingPos = transform.position;
             AttackDamage = attackDamage;
@@ -27,15 +28,22 @@ namespace Enemies.EnemyTypes
         
         public override void Move()
         {
-            if (_isMovingRight)
+            if (IsFacedRight)
                 Rigidbody2D.position += new Vector2(_runningSpeed * Time.fixedDeltaTime, 0f);
             else
                 Rigidbody2D.position -= new Vector2(_runningSpeed * Time.fixedDeltaTime, 0f);
-            
+
             if (transform.position.x > _startingPos.x + _movementRange)
-                _isMovingRight = false;
-            else if (transform.position.x < _startingPos.x - _movementRange)
-                _isMovingRight = true;
+            {
+                IsFacedRight = false;
+                OnDirectionChange.Invoke();
+            }
+
+            if (transform.position.x < _startingPos.x - _movementRange)
+            {
+                IsFacedRight = true;
+                OnDirectionChange.Invoke();
+            }
         }
 
         public override void Attack(Transform targetTransform)
